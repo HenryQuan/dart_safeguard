@@ -12,7 +12,7 @@ dval - a default value
 
 ## Path
 
-For example, `This.is.an.example.1.value` will get `0` from the following object.
+For example, `This.is.an.example.1.value` will get `1` from the following object.
 
 ```dart
 {
