@@ -1,31 +1,50 @@
 void main() {
-  var testing = {
+  final testing = {
     'Hello': 1,
     'More': {
       'More': {
-        'Even': {
-          'More': 123
-        }
+        'Even': {'More': 123}
       }
     }
   };
-  
-  var result = Guard(testing, 'More.More.Even.123', null);
-  print(result);
-	result = Guard(testing, 'More.More.Even.More', null);
-  print(result);
+
+  var result = guard(testing, 'More.More.Even.123', null);
+  assert(result == null);
+  result = guard(testing, 'More.More.Even.More', null);
+  assert(result == 123);
+
+  final testArray = {
+    'Hello': {
+      'World': [
+        {'node': 1},
+        {'node': 2}
+      ]
+    }
+  };
+
+  result = guard(testArray, 'Hello.World.1.node', null);
+  assert(result == 2);
 }
 
-Guard(obj, path, dval) {
+/// Takes an `object`, a `path` and a `default value`.
+/// Returns whether the valid value or the default value
+guard(obj, String path, dval) {
   // check if obj is null
   if (path == '' && obj != null) return obj;
   // check if object is valid and path does not start with or end with '.'
   if (!path.startsWith('.') && !path.endsWith('.')) {
-    List p = path.split('.');
+    final p = path.split('.');
     if (p != null && p.length > 0) {
-      // Take obj as the default value and only go deeper if o and o[n] are both valid
-      return p.fold(obj, (o, n) => (o != null && o[n] != null) ? o[n] : dval);
+      return p.fold(obj, (curr, key) {
+        // Make sure curr is valid
+        if (curr != null) {
+          final indexKey = int.tryParse(key);
+          if (indexKey != null)
+            return curr[indexKey] != null ? curr[indexKey] : dval;
+          return curr[key] != null ? curr[key] : dval;
+        }
+      });
     }
-  } 
+  }
   return dval;
 }
